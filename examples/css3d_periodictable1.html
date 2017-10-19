@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>three.js css3d - periodic table</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			html, body {
+				height: 100%;
+			}
+
+			body {
+				background-color: #000000;
+				margin: 0;
+				font-family: Helvetica, sans-serif;;
+				overflow: hidden;
+			}
+
+			a {
+				color: #ffffff;
+			}
+
+			#info {
+				position: absolute;
+				width: 100%;
+				color: #ffffff;
+				padding: 5px;
+				font-family: Monospace;
+				font-size: 13px;
+				font-weight: bold;
+				text-align: center;
+				z-index: 1;
+			}
+
+			#menu {
+				position: absolute;
+				bottom: 20px;
+				width: 100%;
+				text-align: center;
+			}
+
+			.element {
+				width: 120px;
+				height: 160px;
+				box-shadow: 0px 0px 12px rgba(0,255,255,0.5);
+				border: 1px solid rgba(127,255,255,0.25);
+				text-align: center;
+				cursor: default;
+			}
+
+			.element:hover {
+				box-shadow: 0px 0px 12px rgba(0,255,255,0.75);
+				border: 1px solid rgba(127,255,255,0.75);
+			}
+
+				.element .number {
+					position: absolute;
+					top: 20px;
+					right: 20px;
+					font-size: 12px;
+					color: rgba(127,255,255,0.75);
+				}
+				.element .symbol {
+					position: absolute;
+					top: 40px;
+					left: 0px;
+					right: 0px;
+					font-size: 60px;
+					font-weight: bold;
+					color: rgba(255,255,255,0.75);
+					text-shadow: 0 0 10px rgba(0,255,255,0.95);
+				}
+
+				.element .details {
+					position: absolute;
+					bottom: 15px;
+					left: 0px;
+					right: 0px;
+					font-size: 12px;
+					color: rgba(127,255,255,0.75);
+				}
+
+			button {
+				color: rgba(127,255,255,0.75);
+				background: transparent;
+				outline: 1px solid rgba(127,255,255,0.75);
+				border: 0px;
+				padding: 5px 10px;
+				cursor: pointer;
+			}
+			button:hover {
+				background-color: rgba(0,255,255,0.5);
+			}
+			button:active {
+				color: #000000;
+				background-color: rgba(0,255,255,0.75);
+			}
+		</style>
+	</head>
+	<body>
+		<script src="../build/three.js"></script>
+		<script src="js/libs/tween.min.js"></script>
+		<script src="js/controls/TrackballControls.js"></script>
+		<script src="js/renderers/CSS3DRenderer.js"></script>
+
+		<div id="container"></div>
+		<div id="info"><a href="http://threejs.org" target="_blank" rel="noopener">three.js css3d</a> - periodic table. <a href="https://plus.google.com/113862800338869870683/posts/QcFk5HrWran" target="_blank" rel="noopener">info</a>.</div>
+		<div id="menu">
+			<button id="table">TABLE</button>
+			<button id="sphere">SPHERE</button>
+			<button id="helix">HELIX</button>
+			<button id="grid">GRID</button>
+		</div>
+
+		<script>
+
+			var table = [
+				"Ha", "Hafidz", " 24 M", 1, 1,
+				"Ot", "Othman", "56 M", 18, 1,
+				"Sh", "Shazwan", "24 M", 1, 2,
+				"Sha", "Shah", "27 M", 2, 2,
+				"Am", "Amri", "24 M", 13, 2,
+				"Er", "Erry", "24 M", 14, 2,
+				"Sha", "Shahmi", "24 M", 15, 2,
+				"Aq", "Aqif", "24 M", 16, 2,
+				"Sai", "Saifuddin", "24 M", 17, 2,
+				"Nu", "Nursyafiq", "24 M", 18, 2,
+				
+				"Z", "Zali", "26 M", 1, 3,
+				"H", "Hairi", "24 M", 2, 3,
+				"Fa", "Faizal", "24 M", 13, 3,
+				"Na", "Naim", "24 M", 14, 3,
+				"Za", "Zarif", "24 M", 15, 3,
+				"As", "Asri", "24 M", 16, 3,
+				"Kh", "Khairudin", "26 M", 17, 3,
+				"Az", "Azarul", "25 M", 18, 3,
+				
+				"F", "Farhan", "24 M", 1, 4,
+				"Ez", "Ezzat", "24 M", 2, 4,
+				"Wa", "Waie", "24 M", 3, 4,
+				"N", "Naz Grey", "26 M", 4, 4,
+				"SS", "Syafiq", "23 M", 5, 4,
+				"Al", "Alif", "24 M", 6, 4,
+				"W", "Will", "22 M", 7, 4,
+				"As", "Asyraf", "24 M", 8, 4,
+				"Q", "Qusai", "23 M", 9, 4,
+				"WA", "Wan Aideel", "24 M", 10, 4,
+				"Za", "Zainul", "23 M", 11, 4,
+				"G", "Gao", "20 M", 12, 4,
+				"Ay", "Ayob", "19 M", 13, 4,
+				"E", "Ezad", "24 M", 14, 4,
+				"Sha", "Shamin", "24 M", 15, 4,
+				"Am", "Amir", "23 M", 16, 4,
+				"Ami", "Amirul", "17 M", 17, 4,
+				"Ay", "Ayman", "23 M", 18, 4,
+				
+				"Bak", "Bakhtiar", "24 M", 1, 5,
+				"Kh", "Khairul", "26 M", 2, 5,
+				"Az", "Azrul", "34 M", 3, 5,
+				"Za", "Zaim", "24 M", 4, 5,
+				"Na", "Nazmi", "25 M", 5, 5,
+				"Mu", "Muaz", "28 M", 6, 5,
+				"Lu", "Luai", "34 M", 7, 5,
+				"Fi", "Firdaus", "40 M", 8, 5,
+				"Saf", "Safwan", "24 M", 9, 5,
+				"Az", "Azeem", "24 M", 10, 5,
+				"Im", "Imran", "23 M", 11, 5,
+				"Fad", "Fadhli", "40 M", 12, 5,
+				"Ja", "Jacky", "21 M", 13, 5,
+				"Az", "Azim", "27 M", 14, 5,
+				"Bur", "Burhan", "27 M", 15, 5,
+				"Ru", "Rushaidi", "23 M", 16, 5,
+				"SA", "Syed Adib", "24 M", 17, 5,
+				"Na", "Nazreen", "26 M", 18, 5,
+				
+				"Sai", "Saifuddin", "24 M", 1, 6,
+				"ZH", "Zain Hambali", "22 M", 2, 6,
+				
+				"Fa", "Fauzan", "25 M", 4, 9,
+				"Naq", "Nqiuddin", "24 M", 5, 9,
+				"Ar", "Arif", "24 M", 6, 9,
+				
+				"Sy", "Syamili", "24 F", 7, 9,
+				"R", "Ritu", "27 F", 8, 9,
+				"I", "Izatie", "24 F", 9, 9,
+				"A", "Aina", "24 F", 10, 9,
+				"Ai", "Ain", "24 F", 11, 9,
+				"Di", "Diana", "26 F", 12, 9,
+				"Aa", "Aimi Adilah", "24 F", 13, 9,
+				"AE", "Ainaa Enani", "24 F", 14, 9,
+				"SA", "Siti Auja", "F", 15, 9,
+				"OS", "Opie Saufiah", "24 F", 16, 9,
+				"F", "Farhana", "24 F", 17, 9,
+				"SQ", "Siti Qafishna", "24 F", 18, 9,
+				
+				"Ai", "Aisyah", "24 F", 4, 6,
+				"Ra", "Raibiatul", "24 F", 5, 6,
+				"No", "Norasyikin", "24 F", 6, 6,
+				"Sya", "Syazrina", "24 F", 7, 6,
+				"NI", "Nur Iffa", "24 F", 8, 6,
+				"Ma", "Maysarah", "26 F", 9, 6,
+				"Za", "Zalifah", "42 F", 10, 6,
+				"Fat", "Fatin", "24 F", 11, 6,
+				"SS", "Syafiqah", "24 F", 12, 6,
+				"NS", "Nurul Syaha", "24 F", 13, 6,
+				"Asy", "Asyiqin", "24 F", 14, 6,
+				"FS", "Farha Syahira", "24 F", 15, 6,
+				"SS", "S. Syahira", "25 F", 16, 6,
+				"L", "Linda", "24 F", 17, 6,
+				"Ra", "Rahayu", "24 F", 18, 6,
+				
+				"El", "Elyana", "24 F", 1, 7,
+				"Ai", "Aida", "24 F", 2, 7,
+				
+				"NN", "N. Nabeela", "24 F", 4, 10,
+				"At", "Atiqah", "24 F", 5, 10,
+				"Af", "Afiqah", "24 F", 6, 10,
+				"Rai", "Raihayu", "24 F", 7, 10,
+				"F", "Farah", "24 F", 8, 10,
+				"NJ", "Nur Jamsyir", "24 F", 9, 10,
+				"Ais", "Aisyah", "26 F", 10, 10,
+				"CE", "Cik Emey", "25", 11, 10,
+				"S", "Syahida", "22 F", 12, 10,
+				"Haf", "Hafizah", "24 F", 13, 10,
+				"Ka", "Kathy", "34 F", 14, 10,
+				"FF", "Fazli", "30 F", 15, 10,
+				"So", "Solehah", "24 F", 16, 10,
+				"Kh", "Khuzaimatul", "22 F", 17, 10,
+				"Li", "Liyana", "23 F", 18, 10,
+				
+				"NA", "Nurain", "24 F", 4, 7,
+				"Wa", "Wardah", "24 F", 5, 7,
+				"Ais", "Aishah", "24 F", 6, 7,
+				"Az", "Azizah", "52 F", 7, 7,
+				"D", "Dila", "24 F", 8, 7,
+				"NF", "Nur Fazdlin", "22 F", 9, 7,
+				"Fa", "Fakhira", "24 F", 10, 7,
+				"NS", "Nur Syafiqah", "24 F", 11, 7,
+				"Ha", "Hamidah", "52 F", 12, 7,
+				"Har", "Haryati", "23 F", 13, 7,
+				"At", "Atikah", "24 F", 14, 7,
+				"Al", "Alia", "23 F", 15, 7,
+				"Af", "Afifah", "24 F", 16, 7,
+				"SA", "Sharifah Aida", "21 F", 17, 7,
+				"NS", "Nur Syazana", "24 F", 18, 7
+			];
+
+			var camera, scene, renderer;
+			var controls;
+
+			var objects = [];
+			var targets = { table: [], sphere: [], helix: [], grid: [] };
+
+			init();
+			animate();
+
+			function init() {
+
+				camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.z = 3000;
+
+				scene = new THREE.Scene();
+
+				// table
+
+				for ( var i = 0; i < table.length/2 ; i += 5 ) {
+
+					var element = document.createElement( 'div' );
+					element.className = 'element';
+					element.style.backgroundColor = 'rgba(0,127,127,' + ( Math.random() * 0.5 + 0.25 ) + ')';
+
+					var number = document.createElement( 'div' );
+					number.className = 'number';
+					number.textContent = (i/5) + 1;
+					element.appendChild( number );
+
+					var symbol = document.createElement( 'div' );
+					symbol.className = 'symbol';
+					symbol.textContent = table[ i ];
+					element.appendChild( symbol );
+
+					var details = document.createElement( 'div' );
+					details.className = 'details';
+					details.innerHTML = table[ i + 1 ] + '<br>' + table[ i + 2 ];
+					element.appendChild( details );
+					
+					var object = new THREE.CSS3DObject( element );
+					object.position.x = Math.random() * 4000 - 2000;
+					object.position.y = Math.random() * 4000 - 2000;
+					object.position.z = Math.random() * 4000 - 2000;
+					scene.add( object );
+
+					objects.push( object );
+
+					//
+
+					var object = new THREE.Object3D();
+					object.position.x = ( table[ i + 3 ] * 140 ) - 1330;
+					object.position.y = - ( table[ i + 4 ] * 180 ) + 990;
+
+					targets.table.push( object );
+
+				}
+				
+				for ( var i = table.length/2 ; i < table.length -1 ; i += 5 ) {
+
+					var element = document.createElement( 'div' );
+					element.className = 'element';
+					element.style.backgroundColor = 'rgba(235, 124, 170,' + ( Math.random() * 0.5 + 0.25 ) + ')';
+
+					var number = document.createElement( 'div' );
+					number.className = 'number';
+					number.textContent = (i/5) + 1;
+					element.appendChild( number );
+
+					var symbol = document.createElement( 'div' );
+					symbol.className = 'symbol';
+					symbol.textContent = table[ i ];
+					element.appendChild( symbol );
+
+					var details = document.createElement( 'div' );
+					details.className = 'details';
+					details.innerHTML = table[ i + 1 ] + '<br>' + table[ i + 2 ];
+					element.appendChild( details );
+					
+					var object = new THREE.CSS3DObject( element );
+					object.position.x = Math.random() * 4000 - 2000;
+					object.position.y = Math.random() * 4000 - 2000;
+					object.position.z = Math.random() * 4000 - 2000;
+					scene.add( object );
+
+					objects.push( object );
+
+					//
+
+					var object = new THREE.Object3D();
+					object.position.x = ( table[ i + 3 ] * 140 ) - 1330;
+					object.position.y = - ( table[ i + 4 ] * 180 ) + 990;
+
+					targets.table.push( object );
+
+				}
+
+				// sphere
+
+				var vector = new THREE.Vector3();
+				var spherical = new THREE.Spherical();
+
+				for ( var i = 0, l = objects.length; i < l; i ++ ) {
+
+					var phi = Math.acos( -1 + ( 2 * i ) / l );
+					var theta = Math.sqrt( l * Math.PI ) * phi;
+
+					var object = new THREE.Object3D();
+
+					spherical.set( 800, phi, theta );
+
+					object.position.setFromSpherical( spherical );
+
+					vector.copy( object.position ).multiplyScalar( 2 );
+
+					object.lookAt( vector );
+
+					targets.sphere.push( object );
+
+				}
+
+				// helix
+
+				var vector = new THREE.Vector3();
+				var cylindrical = new THREE.Cylindrical();
+
+				for ( var i = 0, l = objects.length; i < l; i ++ ) {
+
+					var theta = i * 0.175 + Math.PI;
+					var y = - ( i * 8 ) + 450;
+
+					var object = new THREE.Object3D();
+
+					cylindrical.set( 900, theta, y );
+
+					object.position.setFromCylindrical( cylindrical );
+
+					vector.x = object.position.x * 2;
+					vector.y = object.position.y;
+					vector.z = object.position.z * 2;
+
+					object.lookAt( vector );
+
+					targets.helix.push( object );
+
+				}
+
+				// grid
+
+				for ( var i = 0; i < objects.length; i ++ ) {
+
+					var object = new THREE.Object3D();
+
+					object.position.x = ( ( i % 5 ) * 400 ) - 800;
+					object.position.y = ( - ( Math.floor( i / 5 ) % 5 ) * 400 ) + 800;
+					object.position.z = ( Math.floor( i / 25 ) ) * 1000 - 2000;
+
+					targets.grid.push( object );
+
+				}
+
+				//
+
+				renderer = new THREE.CSS3DRenderer();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.domElement.style.position = 'absolute';
+				document.getElementById( 'container' ).appendChild( renderer.domElement );
+
+				//
+
+				controls = new THREE.TrackballControls( camera, renderer.domElement );
+				controls.rotateSpeed = 0.5;
+				controls.minDistance = 500;
+				controls.maxDistance = 6000;
+				controls.addEventListener( 'change', render );
+
+				var button = document.getElementById( 'table' );
+				button.addEventListener( 'click', function ( event ) {
+
+					transform( targets.table, 2000 );
+
+				}, false );
+
+				var button = document.getElementById( 'sphere' );
+				button.addEventListener( 'click', function ( event ) {
+
+					transform( targets.sphere, 2000 );
+
+				}, false );
+
+				var button = document.getElementById( 'helix' );
+				button.addEventListener( 'click', function ( event ) {
+
+					transform( targets.helix, 2000 );
+
+				}, false );
+
+				var button = document.getElementById( 'grid' );
+				button.addEventListener( 'click', function ( event ) {
+
+					transform( targets.grid, 2000 );
+
+				}, false );
+
+				transform( targets.table, 2000 );
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function transform( targets, duration ) {
+
+				TWEEN.removeAll();
+
+				for ( var i = 0; i < objects.length; i ++ ) {
+
+					var object = objects[ i ];
+					var target = targets[ i ];
+
+					new TWEEN.Tween( object.position )
+						.to( { x: target.position.x, y: target.position.y, z: target.position.z }, Math.random() * duration + duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.start();
+
+					new TWEEN.Tween( object.rotation )
+						.to( { x: target.rotation.x, y: target.rotation.y, z: target.rotation.z }, Math.random() * duration + duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.start();
+
+				}
+
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				render();
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				TWEEN.update();
+
+				controls.update();
+
+			}
+
+			function render() {
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
